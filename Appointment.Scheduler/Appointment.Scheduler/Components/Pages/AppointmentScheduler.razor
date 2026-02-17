@@ -1,0 +1,157 @@
+﻿@page "/appointments"
+@using AppointmentScheduler.Models
+@using AppointmentScheduler.Services
+@inject AppointmentService AppointmentService
+@inject CalendarService CalendarService
+@inject NavigationManager Navigation
+
+<div class="container-fluid p-4">
+    <h2>Schedule an Appointment</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@NewAppointment" OnValidSubmit="@HandleSubmit">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="mb-3">
+                    <label class="form-label">Your Name</label>
+                    <InputText class="form-control" @bind-Value="NewAppointment.ClientName" placeholder="Enter your name" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Email Address</label>
+                    <InputText class="form-control" @bind-Value="NewAppointment.ClientEmail" placeholder="Enter your email" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Appointment Subject</label>
+                    <InputText class="form-control" @bind-Value="NewAppointment.Subject" placeholder="e.g., Consultation" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Select Date</label>
+                    <InputDate class="form-control" @bind-Value="SelectedDate" />
+                </div>
+
+                @if (AvailableSlots.Any())
+                {
+                    <div class="mb-3">
+                        <label class="form-label">Select Time Slot</label>
+                        <select class="form-control" @onchange="HandleSlotSelection">
+                            <option value="">Choose a time...</option>
+                            @foreach (var slot in AvailableSlots)
+                            {
+                                <option value="@slot.Ticks">@slot:g</option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label class="form-label">Description (Optional)</label>
+                    <InputTextArea class="form-control" @bind-Value="NewAppointment.Description" placeholder="Additional details..." />
+                </div>
+
+                <button type="submit" class="btn btn-primary" disabled="@IsSubmitting">
+                    @if (IsSubmitting)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        <span>Scheduling...</span>
+                    }
+                    else
+                    {
+                        <span>Schedule Appointment</span>
+                    }
+                </button>
+
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <div class="alert alert-info mt-3">@Message</div>
+                }
+            </EditForm>
+        </div>
+
+        <div class="col-md-6">
+            <h4>Upcoming Appointments</h4>
+            @if (Appointments.Any())
+            {
+                <div class="list-group">
+                    @foreach (var apt in Appointments.OrderBy(a => a.StartTime))
+                    {
+                        <div class="list-group-item">
+                            <h6>@apt.Subject</h6>
+                            <p class="mb-1"><strong>Client:</strong> @apt.ClientName</p>
+                            <p class="mb-1"><strong>Date/Time:</strong> @apt.StartTime:g - @apt.EndTime:g</p>
+                            <p class="mb-1"><strong>Status:</strong> <span class="badge bg-@(apt.Status == AppointmentStatus.Confirmed ? "success" : "warning")">@apt.Status</span></p>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-muted">No appointments scheduled yet.</p>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private Appointment NewAppointment = new();
+    private List<Appointment> Appointments = new();
+    private List<DateTime> AvailableSlots = new();
+    private DateTime SelectedDate = DateTime.Today.AddDays(1);
+    private string Message = string.Empty;
+    private bool IsSubmitting = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAppointments();
+    }
+
+    private async Task LoadAppointments()
+    {
+        Appointments = await AppointmentService.GetAppointmentsAsync();
+    }
+
+    private async Task HandleDateChange()
+    {
+        AvailableSlots = await CalendarService.GetAvailableSlotsAsync(SelectedDate);
+    }
+
+    private void HandleSlotSelection(ChangeEventArgs e)
+    {
+        if (long.TryParse(e.Value?.ToString() ?? "", out long ticks))
+        {
+            var selectedTime = new DateTime(ticks);
+            NewAppointment.StartTime = selectedTime;
+            NewAppointment.EndTime = selectedTime.AddMinutes(30);
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (NewAppointment.StartTime == DateTime.MinValue)
+        {
+            Message = "Please select a time slot.";
+            return;
+        }
+
+        IsSubmitting = true;
+        try
+        {
+            var result = await AppointmentService.CreateAppointmentAsync(NewAppointment);
+            Message = "Appointment scheduled successfully! A confirmation email has been sent.";
+            NewAppointment = new();
+            await LoadAppointments();
+        }
+        catch (Exception ex)
+        {
+            Message = $"Error scheduling appointment: {ex.Message}";
+        }
+        finally
+        {
+            IsSubmitting = false;
+        }
+    }
+}
