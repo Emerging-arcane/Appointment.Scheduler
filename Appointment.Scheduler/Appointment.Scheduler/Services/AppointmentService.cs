@@ -1,4 +1,6 @@
-﻿using Appointment.Scheduler.Models;
+﻿using AppointmentScheduler.Models;
+using AppointmentScheduler.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace AppointmentScheduler.Services;
 

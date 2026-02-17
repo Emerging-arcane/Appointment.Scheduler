@@ -1,4 +1,4 @@
-﻿using Appointment.Scheduler.Models;
+﻿using AppointmentScheduler.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection.Emit;
 

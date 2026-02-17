@@ -1,4 +1,4 @@
-﻿namespace Appointment.Scheduler.Models
+﻿namespace AppointmentScheduler.Models
 {
     public class AvailabilitySlot
     {

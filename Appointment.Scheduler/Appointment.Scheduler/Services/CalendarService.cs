@@ -1,5 +1,11 @@
-﻿using Appointment.Scheduler.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using AppointmentScheduler.Models;
+using AppointmentScheduler.Data;
+using Microsoft.Extensions.Logging;
 
 namespace AppointmentScheduler.Services;
 
@@ -24,7 +30,7 @@ public class CalendarService
                 .ToListAsync();
 
             var bookedAppointments = await _context.Appointments
-                .Where(a => a.StartTime.Date == date && a.Status != AppointmentStatus.Cancelled)
+                .Where(a => a.StartTime.Date == date.Date && a.Status != AppointmentStatus.Cancelled)
                 .ToListAsync();
 
             var availableSlots = new List<DateTime>();
