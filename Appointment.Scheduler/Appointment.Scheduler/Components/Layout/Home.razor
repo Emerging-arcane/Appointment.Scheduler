@@ -1,0 +1,62 @@
+﻿@page "/"
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body text-center p-5">
+                    <h1 class="display-4 mb-4">Welcome to Appointment Scheduler</h1>
+                    <p class="lead mb-4">
+                        Schedule your appointments easily and manage your time efficiently.
+                    </p>
+
+                    <div class="d-grid gap-3">
+                        <NavLink href="appointments" class="btn btn-primary btn-lg">
+                            <span class="bi bi-calendar-event"></span> Schedule an Appointment
+                        </NavLink>
+                        <NavLink href="admin/appointments" class="btn btn-outline-secondary btn-lg">
+                            <span class="bi bi-list-check"></span> View Appointments
+                        </NavLink>
+                    </div>
+
+                    <hr class="my-5" />
+
+                    <div class="row mt-4">
+                        <div class="col-md-4 mb-3">
+                            <div class="feature-card">
+                                <h5>📅 Easy Scheduling</h5>
+                                <p>Book appointments in just a few clicks</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="feature-card">
+                                <h5>✉️ Email Notifications</h5>
+                                <p>Get instant confirmation via email</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="feature-card">
+                                <h5>⏰ Smart Availability</h5>
+                                <p>Only see available time slots</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .feature-card {
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        transition: transform 0.2s;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        background-color: #e9ecef;
+    }
+</style>
